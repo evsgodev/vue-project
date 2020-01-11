@@ -66,11 +66,11 @@ export default {
                 const offset = element.offsetHeight - element.clientHeight;
                 const fontSize = Number(element.getAttribute('data-font-size'));
 
-                const calcMaxHeight = () => (element.clientHeight + fontSize - 16) * 8;
+                const calcMaxHeight = () => (element.clientHeight) * 8;
                 
                 const maxHeight = calcMaxHeight();
 
-                element.addEventListener('input', event => {
+                const handlerInputText = event => {
                     if (event.target.clientHeight > maxHeight) {
                         event.target.style.height = maxHeight
                         return;
@@ -78,6 +78,11 @@ export default {
                         event.target.style.height = 'auto';
                         event.target.style.height = `${event.target.scrollHeight + offset}px`;
                     }
+                }
+
+                element.addEventListener('input', event => handlerInputText(event));
+                element.addEventListener('paste', event => {
+                    handlerInputText(event);
                 });
             });
         }
@@ -100,11 +105,17 @@ export default {
                         target.style.fontFamily = select.value;
                         break;
                     case 'selectedFontSize':
+                        let text = null;
+                        
                         target.style.fontSize = `${select.value}px`;
+                        text = target.value;
                         target.value = '';
                         target.style.height = 'auto';
                         target.setAttribute('data-font-size', select.value);
                         getTextAreaHeight();
+                        setTimeout(() => {
+                            target.value = text;
+                        }, 200);
                         break;
                 }
             });
