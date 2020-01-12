@@ -62,17 +62,17 @@ export default {
     },
     mounted() {
         const getTextAreaHeight = () => {
+
             document.querySelectorAll('[data-autoresize]').forEach(element => {
                 const offset = element.offsetHeight - element.clientHeight;
                 const fontSize = Number(element.getAttribute('data-font-size'));
 
-                const calcMaxHeight = () => (element.clientHeight) * 8;
-                
+                const calcMaxHeight = () => (element.clientHeight + fontSize - 20) * 8;
+
                 const maxHeight = calcMaxHeight();
 
                 const handlerInputText = event => {
-                    if (event.target.clientHeight > maxHeight) {
-                        event.target.style.height = maxHeight
+                    if (element.clientHeight > maxHeight) {
                         return;
                     } else {
                         event.target.style.height = 'auto';
@@ -81,8 +81,9 @@ export default {
                 }
 
                 element.addEventListener('input', event => handlerInputText(event));
-                element.addEventListener('paste', event => {
-                    handlerInputText(event);
+                element.addEventListener('paste', event => handlerInputText(event));
+                element.addEventListener('cut', event => {
+                    event.target.style.height = '';
                 });
             });
         }
@@ -105,17 +106,10 @@ export default {
                         target.style.fontFamily = select.value;
                         break;
                     case 'selectedFontSize':
-                        let text = null;
-                        
                         target.style.fontSize = `${select.value}px`;
-                        text = target.value;
-                        target.value = '';
-                        target.style.height = 'auto';
+                        target.style.height = '';
                         target.setAttribute('data-font-size', select.value);
                         getTextAreaHeight();
-                        setTimeout(() => {
-                            target.value = text;
-                        }, 200);
                         break;
                 }
             });
@@ -127,8 +121,6 @@ export default {
 <style scope>
     textarea {
         resize: none;
-        max-width: 600px;
-        width: 100%;
     }
 
     .label-inline {
